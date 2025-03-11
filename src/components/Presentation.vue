@@ -1027,7 +1027,7 @@ onUnmounted(() => {
 .fixed-navigation-buttons {
   position: fixed;
   bottom: 20px;
-  left: 50%;
+  left: calc(50% + 125px); /* 250px的一半，考虑左侧缩略图宽度 */
   transform: translateX(-50%);
   display: flex;
   align-items: center;
