@@ -1,10 +1,12 @@
 <script setup>
-import Presentation from './components/Presentation.vue'
+// 移除直接导入的组件
+// import Presentation from './components/Presentation.vue'
 </script>
 
 <template>
   <main>
-    <Presentation />
+    <!-- 将固定的组件替换为router-view -->
+    <router-view />
   </main>
 </template>
 
@@ -12,7 +14,6 @@ import Presentation from './components/Presentation.vue'
 html, body {
   margin: 0;
   padding: 0;
-  overflow: hidden;
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   width: 100vw;
   height: 100vh;
@@ -21,16 +22,11 @@ html, body {
 #app {
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
-  position: fixed;
-  top: 0;
-  left: 0;
 }
 
 main {
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
 }
 
 /* 自定义滚动条样式 */

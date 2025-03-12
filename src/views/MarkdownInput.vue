@@ -176,12 +176,13 @@ onUnmounted(() => {
   max-width: 1000px;
   margin: 0 auto;
   padding: 20px;
-  padding-bottom: 100px; /* 为固定按钮留出空间 */
+  padding-bottom: 30px; /* 减小底部填充，不再需要为固定按钮留出那么多空间 */
   height: auto;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  text-align: center; /* 添加此属性使内容居中 */
 }
 
 h1 {
@@ -308,12 +309,7 @@ textarea:focus {
 .button-area {
   display: flex;
   justify-content: center;
-  margin: 20px 0 30px 0;
-  position: fixed;
-  bottom: 20px;
-  left: 0;
-  right: 0;
-  background-color: rgba(255, 255, 255, 0.9);
+  margin: 30px 0;
 }
 
 .submit-button {
