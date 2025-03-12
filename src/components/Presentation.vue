@@ -6,11 +6,30 @@ import 'reveal.js/dist/reveal.css';
 import 'reveal.js/dist/theme/white.css';
 import 'reveal.js/plugin/highlight/monokai.css';
 import pptxgen from 'pptxgenjs';
+import { parseMarkdownToSlides } from '../utils/markdownParser';
+// 导入highlight.js和样式
+import 'highlight.js/styles/github.css';
+import hljs from 'highlight.js';
+// 导入常用语言支持
+import javascript from 'highlight.js/lib/languages/javascript';
+import python from 'highlight.js/lib/languages/python';
+import bash from 'highlight.js/lib/languages/bash';
+import xml from 'highlight.js/lib/languages/xml';
+import css from 'highlight.js/lib/languages/css';
+
+// 注册常用语言
+hljs.registerLanguage('javascript', javascript);
+hljs.registerLanguage('python', python);
+hljs.registerLanguage('bash', bash);
+hljs.registerLanguage('xml', xml);
+hljs.registerLanguage('html', xml); // xml可以用于html
+hljs.registerLanguage('css', css);
 
 const deckRefs = ref([]);
 const revealInstances = ref([]);
 const currentSlideIndex = ref(0);
-const slides = ref([
+// 默认幻灯片，当没有Markdown内容时显示
+const defaultSlides = [
   {
     type: 'title',
     title: 'AI Web PPT',
@@ -49,8 +68,9 @@ const slides = ref([
     title: '谢谢观看',
     content: '更多信息请访问 <a href="https://revealjs.com">reveal.js</a>'
   }
-]);
+];
 
+const slides = ref([]);
 const scrollContainer = ref(null);
 const isScrolling = ref(false);
 
@@ -67,6 +87,33 @@ const flattenedSlides = computed(() => {
   }
   return result;
 });
+
+// 从localStorage加载Markdown内容并解析为幻灯片
+function loadMarkdownFromStorage() {
+  try {
+    const markdownContent = localStorage.getItem('aiwebppt-markdown-content');
+    if (markdownContent) {
+      console.log('从localStorage加载到Markdown内容', markdownContent.substring(0, 100) + '...');
+      const parsedSlides = parseMarkdownToSlides(markdownContent);
+      
+      if (parsedSlides && parsedSlides.length > 0) {
+        console.log('成功解析Markdown内容为幻灯片', parsedSlides);
+        slides.value = parsedSlides;
+        return true;
+      } else {
+        console.warn('解析Markdown内容失败或结果为空');
+      }
+    } else {
+      console.warn('localStorage中没有找到Markdown内容');
+    }
+  } catch (error) {
+    console.error('加载Markdown内容时出错:', error);
+  }
+  
+  // 如果没有内容或解析失败，使用默认幻灯片
+  slides.value = defaultSlides;
+  return false;
+}
 
 function addSlide(slideData) {
   slides.value.push(slideData);
@@ -274,15 +321,14 @@ function initializeCodeHighlight() {
   // 应用高亮
   if (codeBlocks.length > 0) {
     try {
-      // 使用Reveal.js的高亮插件
-      RevealHighlight.init();
+      // RevealHighlight已在Reveal实例初始化时通过plugins参数注册
       
-      // 或者直接使用highlight.js (如果可用)
-      if (window.hljs) {
-        codeBlocks.forEach(block => {
-          window.hljs.highlightBlock(block);
-        });
-      }
+      // 使用导入的highlight.js进行代码高亮
+      codeBlocks.forEach(block => {
+        hljs.highlightElement(block);
+      });
+      
+      console.log('代码高亮初始化成功');
     } catch (e) {
       console.error('代码高亮初始化失败:', e);
     }
@@ -462,6 +508,9 @@ function handleFullscreenChange() {
 }
 
 onMounted(() => {
+  // 从localStorage加载Markdown内容
+  loadMarkdownFromStorage();
+  
   // 初始化滚动事件监听
   if (scrollContainer.value) {
     scrollContainer.value.addEventListener('scroll', handleScroll);
@@ -1173,5 +1222,41 @@ onUnmounted(() => {
 
 .exit-icon {
   font-size: 1.2rem;
+}
+
+/* 添加代码块的基本样式 */
+pre {
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  margin: 1.2rem 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+code {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #333;
+}
+
+/* 简单的语法高亮样式 */
+.language-javascript .keyword,
+code .keyword {
+  color: #0000ff; /* 蓝色，关键字 */
+}
+
+.language-javascript .string,
+code .string {
+  color: #a31515; /* 红褐色，字符串 */
+}
+
+.language-javascript .comment,
+code .comment {
+  color: #008000; /* 绿色，注释 */
+}
+
+.language-javascript .number,
+code .number {
+  color: #098658; /* 绿色，数字 */
 }
 </style> 
